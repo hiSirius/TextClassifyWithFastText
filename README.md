@@ -1,6 +1,7 @@
 # TextClassifyWithFastText
 - What is FastText
-Library for efficient text classification and representation learning
+
+    Library for efficient text classification and representation learning
 https://fasttext.cc
 
 ## classify Japanese text with fastText
