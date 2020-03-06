@@ -40,4 +40,4 @@ gensim
      ```python predict.py``` 
 - use as API
 
-``` nohup python server.py ```
+     ``` nohup python server.py ```
