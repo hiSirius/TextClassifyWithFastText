@@ -7,6 +7,8 @@ import neologdn
 import re
 import emoji
 
+import argparse
+
 
 DATA_PATH = r'../train_data'
 TRAIN_FILE = './train.txt'
@@ -24,6 +26,8 @@ def keitaiso(text):
     text = neologdn.normalize(text)
     #URLを除去
     text = re.sub(r'https?://[\w/:%#\$&\?\(\)~\.=\+\-]+', '', text)
+    # 数字の置換
+    text = re.sub(r'[0-9]', r' ', text)
     #記号の置き換え
     # 半角記号の置換
     text = re.sub(r'[!-/:-@[-`{-~]', r' ', text)
@@ -50,14 +54,25 @@ def fasttext_file(record):
     r = random.randint(1, 10)
     filename = TRAIN_FILE
     
-    if r > 8:
-        filename = TEST_FILE
+    # if r > 8:
+    #     filename = TEST_FILE
     
     with open(filename, 'a') as f:
         f.write(record)
 
+# 名詞の抽出
+def nouns_extract(text):
+    tagger = MeCab.Tagger("-Ochasen")
+    nouns = [line.split()[0] for line in tagger.parse(text).splitlines() if "名詞" in line.split()[-1]]
+    return nouns
 
 if __name__ == '__main__':
+    
+    # processing with argumentParser
+    ap = argparse.ArgumentParser()
+    # extract the nouns from dataset 
+    ap.add_argument("-onlynoun",help="extract noun from dataset." ,action="store_true")
+    args = ap.parse_args()
 
     if os.path.exists(TEST_FILE):
         os.remove(TEST_FILE)
@@ -81,7 +96,11 @@ if __name__ == '__main__':
                 try:
                     text = f.read()
                     #形態素解析
-                    text = keitaiso(text)                    
+                    text = keitaiso(text) 
+                    #名詞の抽出
+                    if args.onlynoun :
+                        #名詞の抽出
+                        text = " ".join( nouns_extract(text) ) +"\n" 
                     # fasttextが求める書式に直す
                     record = '__label__{} , {}'.format(category_name, text)
                     fasttext_file(record)
